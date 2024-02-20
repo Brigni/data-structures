@@ -6,18 +6,12 @@
 struct aiv_list_item
 {
     struct aiv_list_item* next;
-    unsigned int count;
-};
-
-struct aiv_list
-{
-    struct aiv_list_item* head;
-    unsigned int counter;
+    unsigned int count; //the head keeps the items count (weird number)(not working)
 };
 
 struct aiv_list_item* aiv_list_get_tail(struct aiv_list_item* head)
 {
-    if(!head)
+    if(!head) //list is invalid (empty)
     {
         return NULL;
     }
@@ -90,7 +84,7 @@ struct aiv_list_item* aiv_list_remove(struct aiv_list_item** head, struct aiv_li
     if(*head == item) //if the item to remove is the head
     {
         ((*head)->next)->count = (*head)->count - 1; //I make sure the new head has the list item count (-1 because I am removing the head)
-        printf("Removed item (head)\n");
+        printf("Item removed (head)\n");
         return *head; //return the removed item
     }
 
@@ -114,9 +108,39 @@ struct aiv_list_item* aiv_list_remove(struct aiv_list_item** head, struct aiv_li
     return NULL;
 }
 
+void aiv_list_invert (struct aiv_list_item** head) //not working
+{
+    //check if list is valid
+    if(!(*head))
+    {
+        return;
+    }
+    //check if head is the only item in the list
+    if(!((*head)->next))
+    {
+        return;
+    }
+    struct aiv_list_item* new_head = NULL;
+    for(int i = 0; i < (*head)->count; i++)
+    {
+        struct aiv_list_item* current_item = aiv_list_get_tail(*head); //get last item from old list
+        if(new_head)
+        {
+            aiv_list_append(&new_head, current_item); //if list already has a new head, append new item
+        }
+        else
+        {
+            new_head = current_item; //if list doesn't have new head make last item from previous list the new head
+        }
+        aiv_list_remove(head, current_item); //remove last item from old list to have a new tail
+    }
+    *head = new_head; //change the old list with the new one
+}
+
 int main(int argc, char** argv)
 {
     struct aiv_list_item* head = NULL;
+
 
     struct aiv_int_item int_item;
     int_item.value = 100;
@@ -126,7 +150,21 @@ int main(int argc, char** argv)
     int_item2.value = 101;
     aiv_list_append(&head, AIV_LIST(int_item2));
 
+    struct aiv_int_item int_item3;
+    int_item3.value = 102;
+    aiv_list_append(&head, AIV_LIST(int_item3));
+
+    // printf("item count: %d\n", aiv_list_lenght(head));
+
+    // printf("item 1: %d, item 2: %d, item 3: %d\n", int_item.value, int_item2.value, int_item3.value);
+
+    // aiv_list_invert(&head);
+
+    // printf("item 1: %d, item 2: %d, item 3: %d\n", int_item.value, int_item2.value, int_item3.value);
+
     struct aiv_list_item* item = aiv_list_remove(&head, AIV_LIST(int_item2));
+    
+    printf("item 1: %d, item 2: %d\n", int_item.value, int_item3.value);
     
     return 0;
 }
